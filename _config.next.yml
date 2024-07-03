@@ -1,0 +1,37 @@
+scheme: Gemini
+darkmode: true
+menu:
+  home: / || fa fa-home
+  #about: /about/ || fa fa-user
+  tags: /tags/ || fa fa-tags
+  categories: /categories/ || fa fa-th
+avatar:
+  # Replace the default image and set the url here.
+  url: /imgs/icon.jpg
+  # If true, the avatar will be displayed in circle.
+  rounded: true
+  # If true, the avatar will be rotated with the cursor.
+  rotated: false
+social:
+  github: https://github.com || fab fa-github
+  email: mailto:sqazine@163.com || fa fa-envelope
+codeblock:
+  # Code Highlight theme
+  # All available themes: https://theme-next.js.org/highlight/
+  theme:
+    light: a11y-light
+    dark: a11y-dark
+# `Follow me on GitHub` banner in the top-right corner.
+github_banner:
+  enable: true
+  permalink: https://github.com
+
+math:
+ per_page: true
+ mathjax:
+  enable: true
+  mhchem: false
+
+katex:
+ enable: filename_case
+ copy_tex: false
