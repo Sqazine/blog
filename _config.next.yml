@@ -35,3 +35,9 @@ math:
 katex:
  enable: filename_case
  copy_tex: false
+
+# Automatically Excerpt. Not recommand.
+# Please use <!-- more --> in the post to control excerpt accurately.
+auto_excerpt:
+  enable: true
+  length: 150
