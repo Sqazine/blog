@@ -297,6 +297,6 @@ objectShader.setVec3("spotLight.specular", glm::vec3(1));
 
 通过设置不同的参数可以获取不同的灯光体验.
 
-# 参考文档或书籍:
+# 参考文档或书籍
 
 [投光物-learnopengl-cn](https://learnopengl-cn.github.io/02%20Lighting/05%20Light%20casters/)

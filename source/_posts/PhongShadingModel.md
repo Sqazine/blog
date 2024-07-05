@@ -168,7 +168,7 @@ float spec=pow(max(dot(normal,normalize(lightDir+viewDir)),0),100);
 
 在顶点着色器中实现Phong氏模型叫Gouraud着色
 
-# 参考文档或书籍:
+# 参考文档或书籍
 
 [learnopengl-cn](https://learnopengl-cn.github.io/)
 
