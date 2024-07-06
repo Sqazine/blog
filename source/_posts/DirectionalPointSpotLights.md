@@ -299,4 +299,9 @@ objectShader.setVec3("spotLight.specular", glm::vec3(1));
 
 # 参考文档或书籍
 
-[投光物-learnopengl-cn](https://learnopengl-cn.github.io/02%20Lighting/05%20Light%20casters/)
+---
+
+投光物-learnopengl-cn
+https://learnopengl-cn.github.io/02%20Lighting/05%20Light%20casters/
+
+---

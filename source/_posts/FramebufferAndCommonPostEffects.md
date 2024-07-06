@@ -418,7 +418,16 @@ edgeColor设置为黑色,backgroundColor设置为白色.然后关闭场景里所
 ![](image14.png)
 
 # 参考文档或书籍
+---
 
-[learnopengl-cn](https://learnopengl-cn.github.io/)
+learnopengl-cn
+https://learnopengl-cn.github.io/
 
-[Unity Shader入门精要](https://product.dangdang.com/23972910.html)
+---
+
+---
+
+Unity Shader入门精要
+https://product.dangdang.com/23972910.html
+
+---
