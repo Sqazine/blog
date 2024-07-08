@@ -1,6 +1,6 @@
 ---
 title: Phong着色模型
-date: 2024-07-02
+date: 2024-07-02 16:26:26
 tags: 渲染
 category: 渲染
 mathjax: true

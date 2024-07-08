@@ -12,16 +12,11 @@ mathjax: true
 
 在OpenGL中，首先需要指定一个GL_TEXTURE_CUBE_MAP类型的纹理ID。然后读取6张贴图的像素值，再对每张贴图的像素调用glTexImage2D来生成2D纹理.在glTexImage2D函数的第一个参数需要绑定到对应的纹理目标来告诉OpenGL当前的纹理是用于CubeMap的哪个面.有以下纹理目标：
 
-● GL_TEXTURE_CUBE_MAP_POSITIVE_X
-
-● GL_TEXTURE_CUBE_MAP_NEGATIVE_X
-
-● GL_TEXTURE_CUBE_MAP_POSITIVE_Y
-
-● GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
-
-● GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-
+● GL_TEXTURE_CUBE_MAP_POSITIVE_X  
+● GL_TEXTURE_CUBE_MAP_NEGATIVE_X  
+● GL_TEXTURE_CUBE_MAP_POSITIVE_Y  
+● GL_TEXTURE_CUBE_MAP_NEGATIVE_Y  
+● GL_TEXTURE_CUBE_MAP_POSITIVE_Z  
 ● GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  
 
 十分直接明了,只需要读取图片像素,绑定好对应的纹理目标,然后再GLSL中使用samplerCube就行了.
