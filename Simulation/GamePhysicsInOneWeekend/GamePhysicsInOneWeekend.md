@@ -1,12 +1,6 @@
----
-title: GamePhysicsInOneWeekend V1.07 个人翻译
-date: 2024-07-22 17:10:47
-tags: 仿真
-category: 仿真 
-mathjax: true
----
+#  GamePhysicsInOneWeekend V1.07 个人翻译
 
-# 1. 总览
+## 1. 总览
 本系列书籍受Peter Shirley相似名字的书籍"Ray Tracing In One Weekend"启发.他的书可以让没有任何图形编程知识的人都可以自制一个光线追踪器.
 
 　　读完他的书之后,我想对于学科应该尽可能有更多相似系列的书籍.总之,在开始学习某个学科时,最困难的部分经常是弄清楚如何开始.
@@ -33,11 +27,10 @@ $$
 　　无论你是学生或者是专业的程序员,我都希望你可以从本书中有所收获.让我们开始吧.
 
 
-
-## 1.1 致谢
+### 1.1 致谢
 Peter Shirley, Zachary Williams, Adam Petrone, Nick Korn, Mincho Paskalev, Yuki Nishidate
 
-# 2 向量类
+## 2 向量类
 我们需要一种可以在2D,3D和4D空间表示位置和方向的方式.基于此,我们使用Vec类表示2D向量,Vec3类表示3D向量以及Vec类表示4D向量.
 
 　　虽然我们通常只关心3D向量,因为我们在创建一个3D物理引擎.但是Vec2和Vec4在这里主要就是支持下一章会讲到的矩阵类.

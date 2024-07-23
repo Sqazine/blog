@@ -1,14 +1,6 @@
----
-title: CubeMap采样过程
-date: 2024-07-06 16:42:22
-tags: 渲染
-category: 渲染
-mathjax: true
----
+# CubeMap采样过程
 
 在OpenGL，Vulkan等API中，采样CubeMap的话需要先将所需的6个面的贴图数据传入GPU，然后再GLSL或者HLSL之类的着色器语言中根据三维的纹理坐标来采样。
-
-
 
 在OpenGL中，首先需要指定一个GL_TEXTURE_CUBE_MAP类型的纹理ID。然后读取6张贴图的像素值，再对每张贴图的像素调用glTexImage2D来生成2D纹理.在glTexImage2D函数的第一个参数需要绑定到对应的纹理目标来告诉OpenGL当前的纹理是用于CubeMap的哪个面.有以下纹理目标：
 

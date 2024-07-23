@@ -1,18 +1,10 @@
----
-title: Phong着色模型
-date: 2024-07-02 16:26:26
-tags: 渲染
-category: 渲染
-mathjax: true
----
+# Phong着色模型
 
 Phong着色模型包含ambient,diffuse,specular部分,对应中文就是环境光,漫反射光照和高光光照.各自呈现的效果如图所示:
 
 ![](image.png)
 
-
-
-# 环境光照
+## 环境光照
 
 环境光照可以理解为外界给予的颜色,此外一般还包含物体自发光颜色,但在一些文献中这两个是分开讨论的.
 
@@ -32,7 +24,7 @@ vec3 ambient=ambientStrength*lightColor;//环境光
 
 objectColor可以是红色绿色蓝色等,也可以是白色,由纹理贴图决定物体外观.
 
-# 漫反射
+## 漫反射
 
 漫反射有两种,一种为Lambert模型,一种为Half-Lambert模型.
 
@@ -104,7 +96,7 @@ vec3 diffuse=lightColor*diffuseStrength*diff;//漫反射光照
 
 ![使用Half-Lambert之后相对柔和很多](image-8.png)
 
-# 高光反射
+## 高光反射
 
 高光反射模型同样也有两种:
 
@@ -168,7 +160,7 @@ float spec=pow(max(dot(normal,normalize(lightDir+viewDir)),0),100);
 
 在顶点着色器中实现Phong氏模型叫Gouraud着色
 
-# 参考文档或书籍
+## 参考文档或书籍
 ---
 
 learnopengl-cn
