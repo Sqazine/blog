@@ -8,7 +8,7 @@ mathjax: true
 
 Knuth算法,又称洗牌算法或者费歇尔算法,可用于棋牌类游戏中
 
-<!-- more -->
+
 
 ```sh
 vector<int> ShuffleArray(vector<int> numbers)

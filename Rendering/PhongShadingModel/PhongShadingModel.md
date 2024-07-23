@@ -8,9 +8,9 @@ mathjax: true
 
 Phong着色模型包含ambient,diffuse,specular部分,对应中文就是环境光,漫反射光照和高光光照.各自呈现的效果如图所示:
 
-![](PhongShadingModel/image.png)
+![](image.png)
 
-<!-- more -->
+
 
 # 环境光照
 
@@ -27,7 +27,7 @@ float ambientStrength=0.1;//环境光强度,模拟环境光照
 vec3 ambient=ambientStrength*lightColor;//环境光
 ```
 
-![当ambientStrength为0.1时的物体外观](PhongShadingModel/image-1.png)
+![当ambientStrength为0.1时的物体外观](image-1.png)
 
 
 objectColor可以是红色绿色蓝色等,也可以是白色,由纹理贴图决定物体外观.
@@ -36,7 +36,7 @@ objectColor可以是红色绿色蓝色等,也可以是白色,由纹理贴图决�
 
 漫反射有两种,一种为Lambert模型,一种为Half-Lambert模型.
 
-![](PhongShadingModel/image-2.png)
+![](image-2.png)
 
 Lambert: $DiffColor=(LightColor*DiffStrength)*Max(0,Dot(n,l))$
 
@@ -53,13 +53,13 @@ float diff=max(dot(normal,lightDir),0.0);//lambert光照模型
 vec3 diffuse=lightColor*diffuseStrength*diff;//漫反射光照
 ```
 
-![Lambert模型,环境光强为0的情况](PhongShadingModel/image-3.png)
+![Lambert模型,环境光强为0的情况](image-3.png)
 
 因为对于lightDir和normal我们仅需要知道他们的方向,而不想让数值影响后续的计算,所以先对他们进行标准化.
 
 法线在这里是通过手工定义然后通过顶点属性传进GLSL的.我是将面的法线定义在模型空间中,因此如果想光照模型对进行仿射变换后的物体模型仍然有良好的效果的话则需要定义一个**法线矩阵**.例如在物体进行**非等比**缩放时其法线将不一定垂直于表面(这时候切线也变了).
 
-![](PhongShadingModel/image-4.png)
+![](image-4.png)
 
 法线矩阵可以理解为模型矩阵左上方3x3矩阵的逆矩阵的转置矩阵.
 
@@ -77,15 +77,15 @@ fragPos=vec3(model*vec4(aPos,1.0));
 
 用传统的Lambert模型会发现在物体的背光处几乎没有光存在,并且在箱子的棱那里有很明显的颜色分割.
 
-![](PhongShadingModel/image-5.png)
+![](image-5.png)
 
 绕到模型后方发现丢失了所有的模型细节
 
-![](PhongShadingModel/image-6.png)
+![](image-6.png)
 
 有一种解决方法就是添加环境光:
 
-![环境光强为0.1的情况](PhongShadingModel/image-7.png)
+![环境光强为0.1的情况](image-7.png)
 
 相对来说会好一丢丢.
 
@@ -102,7 +102,7 @@ float diff=0.5*(dot(normal,lightDir))+0.5;//half-lambert模型，用于改善模
 vec3 diffuse=lightColor*diffuseStrength*diff;//漫反射光照
 ```
 
-![使用Half-Lambert之后相对柔和很多](PhongShadingModel/image-8.png)
+![使用Half-Lambert之后相对柔和很多](image-8.png)
 
 # 高光反射
 
@@ -111,7 +111,7 @@ vec3 diffuse=lightColor*diffuseStrength*diff;//漫反射光照
 Phong高光: $$SpecColor=(LightColor*SpecStrength)*Max(0,Dot(v,r))^{GlossStrength}$$
 Blinn-Phong高光: $$SpecColor=(LightColor*SpecStrength)*Max(0,Dot(n,h))^{GlossStrength}$$
 
-![](PhongShadingModel/image-9.png)
+![](image-9.png)
 
 高光反射要求给出光源的反射方向 $𝑟$,即Reflect.同时比漫反射多了一个 $𝑣$,即观察向量.
 
@@ -134,15 +134,15 @@ vec3 reflectDir=-lightDir-2*(dot(normal,(-lightDir)))*normal;
 
 GlossStrength这里为32.GlossStrength取值越大则光斑越明显,金属质感越强.
 
-![](PhongShadingModel/image-10.png)
+![](image-10.png)
 
 最终将环境光,漫反射光照,高光反射光照得到的颜色分量加在一起就形成Phong着色模型了:
 
-![](PhongShadingModel/image-11.png)
+![](image-11.png)
 
 Blinn-Phong的高光反射模型对比传统的Phong氏着色模型:没有使用反射向量,通过引用新向量$ℎ$和法向量计算得到.
 
-![](PhongShadingModel/image-12.png)
+![](image-12.png)
 
 Blinn-Phong高光:
 $$
@@ -164,7 +164,7 @@ float spec=pow(max(dot(normal,normalize(lightDir+viewDir)),0),100);
 
 以上的实现都是在片元着色器中进行的.如果是要优化性能节约资源的话可以将上述的实现方式丢到顶点着色器中实现.但是出来的效果并不如在片元着色器中的顺滑.因为顶点着色器是per-pixel计算的,因此计算的边缘会有一定的锯齿.
 
-![](PhongShadingModel/image-13.png)
+![](image-13.png)
 
 在顶点着色器中实现Phong氏模型叫Gouraud着色
 

@@ -8,7 +8,7 @@ mathjax: true
 
 主要介绍三种光源的属性,公式和效果
 
-<!-- more -->
+
 
 # 平行光
 平行光比较简单,主要包含一个代表方向的三维向量.当然使用齐次坐标向量也行.但是要把 
@@ -55,7 +55,7 @@ objectShader.setVec3("dirLight.diffuse", glm::vec3(0.05));
 objectShader.setVec3("dirLight.specular", glm::vec3(0.2));
 ```
 
-![最终的样子就像太阳光打在身上](DirectionalPointSpotLights/image.png)
+![最终的样子就像太阳光打在身上](image.png)
 
 # 点光
 点光稍微复杂一点.
@@ -76,11 +76,11 @@ $K_q * d^2$ 是一个二次函数,用于模拟光的非线性衰减部分.同样
 
 由于有二次项,光线会在大部分时候以线性的方式衰退,直到距离在一定程度上让二次项超过一次项,光的强度会以更快的速度下降.导致光在近距离时亮度很高,但随着距离变远亮度迅速降低,最后会以更慢的速度减少亮度.在100个单位距离内光线的衰减图:
 
-![](DirectionalPointSpotLights/image2.png)
+![](image2.png)
 
 以下的表中根据上面三个变量获得的点光源半径:
 
-![](DirectionalPointSpotLights/image3.png)
+![](image3.png)
 
 在代码中,点光结构体可以这样定义:
 ```sh
@@ -135,13 +135,13 @@ objectShader.setFloat("pointLight.quadratic", 0.0019);
 
 在代码中设置点光的属性,可以得到下图的表现:
 
-![白色的小球表示点光源的位置](DirectionalPointSpotLights/image4.png)
+![白色的小球表示点光源的位置](image4.png)
 
 # 聚光
 
 聚光最容易联想到的例子是电筒.聚光的光线从某一个位置射出,然后有一个锥形的发光部分.只有位于锥形内的物体才被照亮.其他保持黑暗.
 
-![](DirectionalPointSpotLights/image5.png)
+![](image5.png)
 
 上图可以看到,聚光有一个**位置**,一个**方向**,一个**切光角**𝜙,一个光源方向于光源到片元方向的夹角𝜃.
 
@@ -164,7 +164,7 @@ $$
 
 不过这里也有一个要注意的地方. $𝑐𝑜𝑠$ 函数在$[0,π]$区间是递减的.
 
-![](DirectionalPointSpotLights/image6.png)
+![](image6.png)
 
 因此,若
 
@@ -219,12 +219,12 @@ objectShader.setVec3("spotLight.diffuse", glm::vec3(1));
 objectShader.setVec3("spotLight.specular", glm::vec3(1));
 ```
 
-![最终效果就是这样](DirectionalPointSpotLights/image7.png)
+![最终效果就是这样](image7.png)
 
 
 可以改变一下输出的颜色值.可以得到一些很有趣的画面.
 
-![](DirectionalPointSpotLights/image8.png)
+![](image8.png)
 
 注意,圆锥边缘太锋利颜色过渡太锋利了,现实中聚光边缘会相对柔和很多,而且中心颜色强度到边缘颜色强度之间有一个平缓的渐变.
 
@@ -246,7 +246,7 @@ struct SpotLight
 uniform SpotLight spotLight;
 ```
 
-![绿色为聚光的朝向,橙色为上述提到的内切光角,红色为外切光角](DirectionalPointSpotLights/image9.png)
+![绿色为聚光的朝向,橙色为上述提到的内切光角,红色为外切光角](image9.png)
 
 这里的计算不需要对角度进行判断了,因为在shader里面分支语句和循环语句都挺消耗性能的.
 
@@ -290,10 +290,10 @@ objectShader.setVec3("spotLight.specular", glm::vec3(1));
 ```
 最终的结果如图:
 
-![](DirectionalPointSpotLights/image10.png)
+![](image10.png)
 
 修改了下最终输出的颜色:
-![](DirectionalPointSpotLights/image11.png)
+![](image11.png)
 
 通过设置不同的参数可以获取不同的灯光体验.
 

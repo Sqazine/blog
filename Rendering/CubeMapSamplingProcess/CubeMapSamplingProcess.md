@@ -8,7 +8,7 @@ mathjax: true
 
 在OpenGL，Vulkan等API中，采样CubeMap的话需要先将所需的6个面的贴图数据传入GPU，然后再GLSL或者HLSL之类的着色器语言中根据三维的纹理坐标来采样。
 
-<!-- more -->
+
 
 在OpenGL中，首先需要指定一个GL_TEXTURE_CUBE_MAP类型的纹理ID。然后读取6张贴图的像素值，再对每张贴图的像素调用glTexImage2D来生成2D纹理.在glTexImage2D函数的第一个参数需要绑定到对应的纹理目标来告诉OpenGL当前的纹理是用于CubeMap的哪个面.有以下纹理目标：
 
@@ -159,7 +159,7 @@ void main()
 
 但是运行会发现两个面之间是有断层的:
 
-![](CubeMapSamplingProcess/image.png)
+![](image.png)
 
 因为两个相对的面是存在镜像的,所以如果统一以左下角为原点的话,则相对的另一个面是以右下角为原点的.所以需要修改一下纹理坐标.
 
@@ -192,4 +192,4 @@ else if(mag==abs(TexCoords.z))
 
 最后就得到一个观感正常的天空盒.注意面之间因为没有做抗锯齿的操作,导致锯齿产生裂缝.
 
-![](CubeMapSamplingProcess/image-1.png)
+![](image-1.png)

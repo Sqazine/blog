@@ -8,7 +8,7 @@ mathjax: true
 
 帧缓冲(Framebuffer)顾名思义,就是内存里面当前帧信息.同样的缓冲还有深度缓冲(Depth Buffer),模板缓冲(Stencil Buffer).
 
-<!-- more -->
+
 
 # 创建帧缓冲
 
@@ -127,7 +127,7 @@ void main()
 }
 ```
 
-![最终就得到一个跟之前没什么区别的场景.](FramebufferAndCommonPostEffects/image.png)
+![最终就得到一个跟之前没什么区别的场景.](image.png)
 
 但是注意这里显示的是screenTexture的颜色值.我们可以通过这个纹理进行一些颜色的变化,以产生一些特效.
 
@@ -148,7 +148,7 @@ void main()
 ```
 效果如下
 
-![原本红色变成青色,白色变成黑色,黑色变成白色](FramebufferAndCommonPostEffects/image2.png)
+![原本红色变成青色,白色变成黑色,黑色变成白色](image2.png)
 
 # 灰度特效
 
@@ -173,7 +173,7 @@ void main()
 
 常用于人物死亡后场景置灰
 
-![](FramebufferAndCommonPostEffects/image3.png)
+![](image3.png)
 
 # 亮度,饱和度和对比度
 亮度可以设定一个值然后乘以需要输出的颜色
@@ -218,13 +218,13 @@ sceneShader.setFloat("contrast", abs(cos(glfwGetTime())));
 
 可以看到亮度和饱和度随着函数的变化明暗不断变化
 
-![](FramebufferAndCommonPostEffects/image4.gif)
+![](image4.gif)
 
 # 锐化
 
 锐化用到了一个叫卷积核的东西.卷积核通常定义为一个可以是2X2,3X3,4X4,5X5的矩阵
 
-![](FramebufferAndCommonPostEffects/image5.png)
+![](image5.png)
 
 卷积核中每个格子有对应的权重,以当前像素作为卷积核的中心,并对卷积核覆盖的像素区域的像素值乘以对应权重最后叠加可以得到该卷积核中心像素最终的像素值.当然权重是自由分配的,但是保证每个分量的和为1,不然最后得出的像素值会偏大或者偏小.
 
@@ -264,7 +264,7 @@ const float offset=1.0/300;
 
 这里定义了一个偏移数组.取纹理中该点附近的点的采样,然后每个采样*卷积核的权值最后叠加到一起.形成如下效果.
 
-![游戏中打了肾上腺素之类的可以用这个](FramebufferAndCommonPostEffects/image6.png)
+![游戏中打了肾上腺素之类的可以用这个](image6.png)
 
 # 均值模糊
 
@@ -279,7 +279,7 @@ float kernel1[9] = float[](
 ```
 
 效果如下:
-![](FramebufferAndCommonPostEffects/image7.png)
+![](image7.png)
 
 改成这样模糊效果会没有那么明显:
 ```sh
@@ -290,7 +290,7 @@ float kernel1[9] = float[](
     );
 ```
 
-![](FramebufferAndCommonPostEffects/image8.png)
+![](image8.png)
 
 # 高斯模糊
 
@@ -313,7 +313,7 @@ $\frac{1}{2\pi\sigma^{2}}$ 对实际结果影响不大
 $𝑁 ⋅ 𝑁 ⋅ 𝑊𝑖𝑑𝑡ℎ⋅ 𝐻𝑒𝑖𝑔ℎ𝑡$次采样.可以看到将核拆分成两个一维的仅需要 
 $2 ⋅𝑁 ⋅ 𝑊𝑖𝑑𝑡ℎ ⋅ 𝐻𝑒𝑖𝑔ℎ𝑡$ 次采样.
 
-![](FramebufferAndCommonPostEffects/image9.png)
+![](image9.png)
 
 ```sh
 //blur的参数随着时间改变
@@ -353,13 +353,13 @@ FragColor=vec4(col,1.0);
 
 可以通过修改offset的参数获得理想的效果.这里参数对应效果如图:
 
-![感觉可以用在主角刚睁开眼时的情形](FramebufferAndCommonPostEffects/image10.gif)
+![感觉可以用在主角刚睁开眼时的情形](image10.gif)
 
 # 边缘检测
 
 边缘检测需要通过相邻像素之间的颜色梯度表示,处于边缘之间两个颜色相差较大,则梯度值比较大.因此冯乐乐的书<Unity Shader 入门精要>介绍了3种常见的边缘检测卷积核
 
-![](FramebufferAndCommonPostEffects/image11.png)
+![](image11.png)
 
 在进行计算时需要得出两个方向上的梯度值,因此需要一个  $𝐺_𝑥$ 和一个 $𝐺_𝑦$ .然后一边的权值是正的另一边是负的.因为该卷积核的目的主要是计算梯度值,因此考虑该像素两边的颜色值的一致性,若两边相差很少则可以认为该像素不处于边缘.整体梯度可以按照 $G=\sqrt{G_{x}^{2}+G_{y}^{2}}$ 计算得到.
 
@@ -407,15 +407,15 @@ const float offset=1.0/1000;
 
 原来的场景是这样的:
 
-![](FramebufferAndCommonPostEffects/image12.png)
+![](image12.png)
 
 edgeColor设置为黑色,backgroundColor设置为白色.然后关闭场景里所有的光源.这时候2B只能看到轮廓了.设置边缘检测之后如下图.
 
-![](FramebufferAndCommonPostEffects/image13.png)
+![](image13.png)
 
 加上灯光的效果是这样:
 
-![](FramebufferAndCommonPostEffects/image14.png)
+![](image14.png)
 
 # 参考文档或书籍
 ---

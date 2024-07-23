@@ -32,7 +32,7 @@ $$
 
 　　无论你是学生或者是专业的程序员,我都希望你可以从本书中有所收获.让我们开始吧.
 
-<!-- more -->
+
 
 ## 1.1 致谢
 Peter Shirley, Zachary Williams, Adam Petrone, Nick Korn, Mincho Paskalev, Yuki Nishidate
