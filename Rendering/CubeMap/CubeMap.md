@@ -9,7 +9,7 @@
 
 创建立方体贴图跟创建2D贴图一样,但是绑定到GL_TEXTURE_CUBE_MAP上.
 
-```sh
+```cpp
 glGenTextures(1, &CubeMapID);
 glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapID);
 ```
@@ -22,13 +22,13 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMapID);
 
 例如以i作为循环次数记录.
 
-```sh
+```cpp
 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 ```
 
 立方体纹理也需要设置环绕模式与过滤模式.
 
-```sh
+```cpp
 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -42,7 +42,7 @@ glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 立方体纹理常用于天空盒.设置好纹理数据和VAO,VBO之后,编写天空盒用的shader就可以了.
 
-```sh
+```cpp
 #version 330 core
 layout(location=0) in vec3 aPos;
 
@@ -59,7 +59,7 @@ void main()
 ```
 片元着色器获取立方体纹理的纹素作为颜色输出.
 
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec3 TexCoords;
@@ -72,7 +72,7 @@ void main()
 
 在绘制天空和的时候需要开启深度测试,以及关闭天空盒的深度写入.因为有些对象与相机的距离可能比天空盒面到相机的距离远.因此这种情况下天空盒有可能将某些物体覆盖了.并且需要注意需要先渲染天空盒再渲染其他物体.
 
-```sh
+```cpp
 int main()
 {
 glDepthMask(GL_FALSE);
@@ -88,7 +88,7 @@ glDepthMask(GL_TRUE);
 
 因为我们不想天空盒跟场景中其他物体一样.天空盒不应受移动影响.仅受旋转和缩放影响.因此需要去掉观察矩阵的平移部分.即保留矩阵左上角部分.
 
-```sh
+```cpp
 view=glm::mat4(glm::mat3(view))
 ```
 
@@ -107,7 +107,7 @@ $$
 
 因此若想经过透视除法后的z值为1,则需要将z值定为w.
 
-```sh
+```cpp
 #version 330 core
 layout(location=0) in vec3 aPos;
 
@@ -130,7 +130,7 @@ void main()
 
 GL_LEQUAL为片元的深度值小于等于缓存的深度值时通过测试.因为如果调用默认的GL_LESS的话基本上天空盒是不会通过测试的.这时候就不需要设置关闭深度写入了.
 
-```sh
+```cpp
 glDepthFunc(GL_LEQUAL);
 //绘制天空盒
 glDepthFunc(GL_LESS);
@@ -162,7 +162,7 @@ glDepthFunc(GL_LESS);
 
 在顶点着色器获取片元的位置以及法向量输出到片元着色器.
 
-```sh
+```cpp
 #version 330 core 
 layout (location=0) in vec3 aPos;
 layout (location=1) in vec3 aNormal;
@@ -189,7 +189,7 @@ void main()
 $𝑟𝑒𝑓𝑙𝑒𝑐𝑡$
 计算,也可以用反射向量的计算方式计算 $R:I−2∗(n \cdot I)∗𝑛$ .因为在顶点着色器片元位置在相机空间下,所以向量 $𝐼$ 仅需要对片元位置归一化即可.
 
-```sh
+```cpp
 #version 330 core 
 out vec4 FragColor; 
 
@@ -211,7 +211,7 @@ void main()
 
 可以运用反射贴图使模型的仅某一部分进行反射.通过引入反射贴图并对反射贴图进行采样获得当前网格的反射系数,然后运用插值对模型的反射贴图与其他光照模型进行综合
 
-```sh
+```cpp
 struct Material
 {
 	sampler2D texture_diffuse0;
@@ -224,19 +224,19 @@ struct Material
 
 在material就结构体里面增加一个反射贴图的声明.接着求出反射系数.
 
-```sh
+```cpp
 float reflectRate=(texture(material.texture_reflection0,TexCoords).r+texture(material.texture_reflection0,TexCoords).g+texture(material.texture_reflection0,TexCoords).b)/3;
 ```
 
 不过反射贴图一般颜色分量不是0就是1,所以也可以简单点
 
-```sh
+```cpp
 float reflectRate=texture(material.texture_reflection0,TexCoords).r;
 ```
 
 在总颜色输出那里做一个插值就可以了.
 
-```sh
+```cpp
 void main() 
 { 
 	vec3 normal=normalize(Normal);
@@ -278,7 +278,7 @@ void main()
 
 其中 $ratio=\frac{\eta_{1}}{\eta_{2}}$,两种折射率比例.然后作为 𝑟𝑒𝑓𝑟𝑎𝑐𝑡 的第三个参数就行.
 
-```sh
+```cpp
 float ratio=1.0/1.33;
 vec3 I=normalize(fragPos);
 vec3 R=refract(I,normal,ratio);
@@ -300,7 +300,7 @@ https://zhuanlan.zhihu.com/p/65105474
 这里有一篇折射函数的推导过程.其中$eta=ratio=\frac{\eta_{1}}{\eta_{2}}$
 
 按照这篇文章的推导即可得到正确折射向量:
-```sh
+```cpp
 vec3 refract(vec3 I,vec3 normal,float ratio)
 {
 	vec3 OC=dot(-I,normal)*normal;

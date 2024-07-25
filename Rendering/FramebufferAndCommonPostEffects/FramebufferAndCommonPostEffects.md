@@ -5,11 +5,11 @@
 ## 创建帧缓冲
 
 OpenGL中有一个默认的帧缓冲.如果想要绑定当前帧缓冲为默认帧缓冲则可以通过:
-```sh
+```cpp
 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 ```
 创建与删除帧缓冲与创建纹理,VAO,VBO,EBO等方式是一样的.
-```sh
+```cpp
 GLuint fbo;
 glGenFramebuffers(1, &fbo);
 glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -30,7 +30,7 @@ glDeleteFramebuffers(1, &fbo);
 
 ● 调用glFramebufferTexture2D附加到帧缓存上
 
-```sh
+```cpp
 unsigned int texture;
 glGenTextures(1, &texture);
 glBindTexture(GL_TEXTURE_2D, texture);
@@ -43,13 +43,13 @@ glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, text
 
 这里用了颜色作为附件,GL_COLOR_ATTACHMENT0.也可以使用深度和模板GL_DEPTH_STENCIL_ATTACHMENT.
 
-```sh
+```cpp
 glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0,  GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
 ```
 渲染缓存对象顾名思义跟VBO一样的都是缓存.其优势是存储的数据为OpenGL的原生渲染格式,可直接将数据存进去,但是渲染缓存对象是只写的,并不能读.但是可以从当前的帧缓存中通过glReadPixels读取.
 
-```sh
+```cpp
 GLuint rbo;
 glGenRenderbuffers(1, &rbo);
 glBindRenderbuffer(GL_RENDERBUFFER, rbo);
@@ -63,7 +63,7 @@ glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDER
 
 在主循环中,首先将帧缓存绑定到我们定义的帧缓存中,然后渲染场景.这时候场景生成的图像最终成为帧缓存中纹理附件的纹理,最后将帧缓存绑定到默认帧缓存,接着绑定纹理附件的VAO,和纹理附件的ID值到片元着色器上,关闭深度测试,最后输出渲染这个图像.
 
-```sh
+```cpp
 int main()
 {
     //...
@@ -91,7 +91,7 @@ int main()
 
 但是由于我们想让纹理始终处于屏幕最前方,因此位置并不需要进行MVP模型的变换.
 
-```sh
+```cpp
 #version 330 core
 
 layout(location=0) in vec2 aPos;
@@ -108,7 +108,7 @@ void main()
 
 片元着色器就是采样纹理颜色并输出
 
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -128,7 +128,7 @@ void main()
 颜色区间是 $[0.0,1.0]$ ,也有 $[0.0,255.0]$ ,当然两者之间可以通过乘或除以255进行转换.这里用 $[0.0,1.0]$ .举个例子,一个红色 $(1.0,0.0,0.0)$ ,其互补颜色为 $(0.0,1.0,1.0)$ ,可以通过求得互补颜色得到反相效果.
 
 在片元着色器修改下:
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -145,11 +145,11 @@ void main()
 ## 灰度特效
 
 灰度特效使场景只有黑白灰三种颜色,一种思路是采用颜色分量相加然后均分
-```sh
+```cpp
 float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
 ```
 另一种是采用加权平分
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -174,7 +174,7 @@ void main()
 
 对比度可以定义一个各分量为0.5的vec3值与颜色值进行插值.
 
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -202,7 +202,7 @@ void main()
 
 在主循环中用时间控制brightness分量和contrast分量
 
-```sh
+```cpp
 sceneShader.setFloat("brightness",abs(sin(glfwGetTime())));
 sceneShader.setFloat("saturation",1.0);
 sceneShader.setFloat("contrast", abs(cos(glfwGetTime())));
@@ -221,7 +221,7 @@ sceneShader.setFloat("contrast", abs(cos(glfwGetTime())));
 卷积核中每个格子有对应的权重,以当前像素作为卷积核的中心,并对卷积核覆盖的像素区域的像素值乘以对应权重最后叠加可以得到该卷积核中心像素最终的像素值.当然权重是自由分配的,但是保证每个分量的和为1,不然最后得出的像素值会偏大或者偏小.
 
 锐化关键代码:
-```sh
+```cpp
 //锐化
 const float offset=1.0/300;
 	vec2 offsets[9] = vec2[](
@@ -262,7 +262,7 @@ const float offset=1.0/300;
 
 模糊对比锐化需要修改的地方只有卷积核.就是改变其权重而已
 
-```sh
+```cpp
 float kernel1[9] = float[](
     1.0 / 16, 2.0 / 16, 1.0 / 16,
     2.0 / 16, 4.0 / 16, 2.0 / 16,
@@ -274,7 +274,7 @@ float kernel1[9] = float[](
 ![](image7.png)
 
 改成这样模糊效果会没有那么明显:
-```sh
+```cpp
   float kernel1[9] = float[](
        0, 0.125, 0,
       0.125,  0.5, 0.125,
@@ -307,7 +307,7 @@ $2 ⋅𝑁 ⋅ 𝑊𝑖𝑑𝑡ℎ ⋅ 𝐻𝑒𝑖𝑔ℎ𝑡$ 次采样.
 
 ![](image9.png)
 
-```sh
+```cpp
 //blur的参数随着时间改变
 sceneShader.setFloat("blur", abs(cos(glfwGetTime())));
 
@@ -355,7 +355,7 @@ FragColor=vec4(col,1.0);
 
 在进行计算时需要得出两个方向上的梯度值,因此需要一个  $𝐺_𝑥$ 和一个 $𝐺_𝑦$ .然后一边的权值是正的另一边是负的.因为该卷积核的目的主要是计算梯度值,因此考虑该像素两边的颜色值的一致性,若两边相差很少则可以认为该像素不处于边缘.整体梯度可以按照 $G=\sqrt{G_{x}^{2}+G_{y}^{2}}$ 计算得到.
 
-```sh
+```cpp
 const float offset=1.0/1000;
 	vec2 offsets[9] = vec2[](
         vec2(-offset,  offset), // 左上

@@ -49,7 +49,7 @@ $$
 
 根据规律得到
 
-```sh
+```cpp
  for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             temp[n-1 - j][n-1 - i] = arr[i][n-1 - j];
@@ -57,7 +57,7 @@ $$
 
 同理,逆时针旋转90度:
 
-```sh
+```cpp
 for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             temp[j][i] = arr[i][n - 1 - j];
@@ -89,7 +89,7 @@ $$
 
 根据规律得到
 
-```sh
+```cpp
  for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             temp[n - 1 - i][j] = arr[i][n - 1 -j];

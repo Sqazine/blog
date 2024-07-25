@@ -10,7 +10,7 @@ Knuth算法,又称洗牌算法或者费歇尔算法,可用于棋牌类游戏中
 
 
 
-```sh
+```cpp
 vector<int> ShuffleArray(vector<int> numbers)
 {
 	srand(time(0));

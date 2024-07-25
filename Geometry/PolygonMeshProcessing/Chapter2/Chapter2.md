@@ -74,7 +74,7 @@
 
 ![图 2.5.中心顶点的单环邻域可以通过从中心顶点的外射半边开始(左),然后通过步进到对半边(中)和下一个半边(右)顺时针重复旋转,直到再次到达第一个半边枚举得到.](image-4.png)
 
-```sh
+```cpp
 void enumerate_one_ring(VertexRef center,Function func)
 {
     HalfedgeRef h = outgoing_halfedge(center);

@@ -25,7 +25,7 @@ https://learnopengl-cn.github.io/04%20Advanced%20OpenGL/06%20Cubemaps/
 Vulkan就比较麻烦一点.因为需要手动管理贴图的缓冲,并没有类似于GL_TEXTURE_CUBE_MAP_POSITIVE_X的纹理目标.
 
 可以以+X,-X,+Y,-Y,+Z,-Z的顺序依次读取6张图片的像素然后存储在容器中,然后创建一个6张图片大小的缓冲区,在调用vkCmdCopyBufferToImage函数的时候指定6个缓冲块.每个块设定好在缓冲区的偏移位置,大小等信息.如下:
-```sh
+```cpp
 std::vector<VkBufferImageCopy> copyRegions;
 for (uint32_t i = 0; i < imageCount; ++i)
 {
@@ -65,7 +65,7 @@ https://github.com/SaschaWillems/Vulkan/blob/master/examples/texturecubemap/text
 
 首先,定义一个立方体网格:
 
-```sh
+```cpp
 float skyboxVertices[24] = 
 {
 	//position
@@ -104,7 +104,7 @@ uint32_t skyboxIndices[36] =
 立方体的8个顶点将作为采样要用到的三维纹理坐标.由于都是在[-1,1]区间,所以上述映射到[-1,1]区间这一步就免了.
 
 片元着色器的具体GLSL代码实现如下:
-```sh
+```cpp
 #version 330 core
 out vec4 FragColor;
 in vec3 TexCoords;
@@ -155,7 +155,7 @@ void main()
 
 因为两个相对的面是存在镜像的,所以如果统一以左下角为原点的话,则相对的另一个面是以右下角为原点的.所以需要修改一下纹理坐标.
 
-```sh
+```cpp
 float mag=max(max(abs(TexCoords.x),abs(TexCoords.y)),abs(TexCoords.z));
 if(mag==abs(TexCoords.x))
 {

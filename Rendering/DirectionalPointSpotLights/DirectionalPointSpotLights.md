@@ -6,7 +6,7 @@
 平行光比较简单,主要包含一个代表方向的三维向量.当然使用齐次坐标向量也行.但是要把 
 $𝑤$分量设置为0代表方向向量而不是点向量.然后再使用Phong着色模型中的diffuse,specular,和ambient对场景物体的贴图描述得到.GLSL代码可以先定义一个关于平行光的结构体:
 
-```sh
+```cpp
 struct DirectionalLight
 {
 	vec3 direction;
@@ -20,7 +20,7 @@ uniform DirectionalLight dirLight;
 
 一般平行光在一个场景里面用一个就够了.当然想要来点别出心裁的也可以设立多个   平行光源.但是得注意性能开销.
 
-```sh
+```cpp
 vec3 CalcDirectionalLight(DirectionalLight dirLight,vec3 normal,vec3 viewDir)//计算平行光
 {
 	vec3 lightDir=normalize(-dirLight.direction);
@@ -40,7 +40,7 @@ vec3 CalcDirectionalLight(DirectionalLight dirLight,vec3 normal,vec3 viewDir)//�
 上面就是计算平行光的函数了,平行光的方向主要作用于Phong氏着色模型.然后通过三个分量对纹理进行采样最后叠加,返回一个RGB形式的颜色值．
 
 设置一下平行光的参数:
-```sh
+```cpp
 objectShader.setVec3("dirLight.direction", -0.2,-1.0,-0.3);
 objectShader.setVec3("dirLight.ambient", glm::vec3(0.0));
 objectShader.setVec3("dirLight.diffuse", glm::vec3(0.05));
@@ -75,7 +75,7 @@ $K_q * d^2$ 是一个二次函数,用于模拟光的非线性衰减部分.同样
 ![](image3.png)
 
 在代码中,点光结构体可以这样定义:
-```sh
+```cpp
 struct PointLight
 {
 	vec3 position;
@@ -94,7 +94,7 @@ uniform PointLight pointLight;
 
 游戏场景中一般有多个点光源,来模拟灯,火把以及火堆等情况.因此可以定义一个数组将场景中的点光记录下来进行计算.当然灯光的使用也是有性能开销的,要合理控制场景内的光源.
 
-```sh
+```cpp
 vec3 CalcPointLight(PointLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 {
   vec3 lightDir=normalize(light.position-fragPos);
@@ -115,7 +115,7 @@ vec3 CalcPointLight(PointLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 
 以上就是计算点光的函数了.套用公式很容易理解.
 
-```sh
+```cpp
 objectShader.setVec3("pointLight.position", pointPos);
 objectShader.setVec3("pointLight.ambient", glm::vec3(0.1));
 objectShader.setVec3("pointLight.diffuse", glm::vec3(0.5));
@@ -165,7 +165,7 @@ $$
 ● $\theta<\phi$,则$cos(\theta)>cos(\phi)$
 
 GLSL定义聚光代码如下:
-```sh
+```cpp
 struct SpotLight
 {
 	vec3 position;
@@ -181,7 +181,7 @@ struct SpotLight
 这里的innerCutOff传进去的是 $cos(\phi)$ 值而不是 𝜙 值.
 
 计算函数如下:
-```sh
+```cpp
 vec3 CalcSpotLight1(SpotLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 {
 	vec3 ambient=light.ambient*texture(material.texture_diffuse0,TexCoords);
@@ -202,7 +202,7 @@ vec3 CalcSpotLight1(SpotLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 ```
 
 设置聚光的参数:
-```sh
+```cpp
 objectShader.setVec3("spotLight.position", camera.Position);
 objectShader.setVec3("spotLight.direction", camera.Front);
 objectShader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(10.0)));
@@ -222,7 +222,7 @@ objectShader.setVec3("spotLight.specular", glm::vec3(1));
 
 为了解决这个问题,聚光中加入一个变量--外切光角,上面提到的切光角变为内切光角.同样,传进去的也是余弦值.
 
-```sh
+```cpp
 struct SpotLight
 {
 	vec3 position;
@@ -250,7 +250,7 @@ $$
 $𝐼$ 就是最终的光强 $Intensity$ , 𝛾 是外切光角.
 
 根据计算公式得函数:
-```sh
+```cpp
 vec3 CalcSpotLight(SpotLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 {
 	vec3 lightDir=normalize(light.position-fragPos);
@@ -271,7 +271,7 @@ vec3 CalcSpotLight(SpotLight light,vec3 normal,vec3 fragPos,vec3 viewDir)
 代码中使用 clamp()函数将光线约束在 $[0,1]$ 区间.
 
 设置新的参数:
-```sh
+```cpp
 objectShader.setVec3("spotLight.position", camera.Position);
 objectShader.setVec3("spotLight.direction", camera.Front);
 objectShader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(10.0)));

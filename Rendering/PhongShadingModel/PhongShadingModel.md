@@ -14,7 +14,7 @@ Phong着色模型包含ambient,diffuse,specular部分,对应中文就是环境�
 
 环境光照的计算很简单,给定一个ambientStrength然后乘以物体颜色即可.
 
-```sh
+```cpp
 float ambientStrength=0.1;//环境光强度,模拟环境光照
 vec3 ambient=ambientStrength*lightColor;//环境光
 ```
@@ -38,7 +38,7 @@ Diffcolor就是最终呈现出的漫反射光照颜色啦,LightColor就是光源
 
 先来Lambert模型.
 
-```sh
+```cpp
 vec3 normal=normalize(Normal);
 vec3 lightDir=normalize(lightPos-fragPos);
 float diff=max(dot(normal,lightDir),0.0);//lambert光照模型
@@ -55,14 +55,14 @@ vec3 diffuse=lightColor*diffuseStrength*diff;//漫反射光照
 
 法线矩阵可以理解为模型矩阵左上方3x3矩阵的逆矩阵的转置矩阵.
 
-```sh
+```cpp
 Normal=mat3(transpose(inverse(model)))*aNormal;
 ```
 通过法线矩阵可以消除仿射变换带来的影响.
 
 
 fragPos则是通过顶点*模型坐标得到该顶点在世界坐标的位置
-```sh
+```cpp
 fragPos=vec3(model*vec4(aPos,1.0));
 ```
 接下来的步骤根据公式计算即可.
@@ -87,7 +87,7 @@ fragPos=vec3(model*vec4(aPos,1.0));
 
 Half-Lambert中,$(\alpha*Dot(n,l)+\beta)$ 则是对点积进行一个 $𝛼$倍的缩放然后加上$𝛽$值的偏移.一般情况下$𝛼$和$𝛽$都取0.5即可,这样就避免了负数的出现.从而使背面也有明暗变化.
 
-```sh
+```cpp
 vec3 normal=normalize(Normal);
 vec3 lightDir=normalize(lightPos-fragPos);
 float diff=0.5*(dot(normal,lightDir))+0.5;//half-lambert模型，用于改善模型背光区域全黑的问题
@@ -107,7 +107,7 @@ Blinn-Phong高光: $$SpecColor=(LightColor*SpecStrength)*Max(0,Dot(n,h))^{GlossS
 
 高光反射要求给出光源的反射方向 $𝑟$,即Reflect.同时比漫反射多了一个 $𝑣$,即观察向量.
 
-```sh
+```cpp
 vec3 normal=normalize(Normal);
 vec3 lightDir=normalize(lightPos-fragPos);
 vec3 viewDir=normalize(viewPos-fragPos);
@@ -120,7 +120,7 @@ vec3 specular=lightColor*specularStrength*spec;
 
 当然也可以不用内置reflect函数而自己写一个:$ReflectDir=l-2*(Dot(n,l))*n$
 
-```sh
+```cpp
 vec3 reflectDir=-lightDir-2*(dot(normal,(-lightDir)))*normal;
 ```
 
@@ -148,7 +148,7 @@ $$
 
 注意,这里光照方向向量指的是从片元位置指向光源位置的向量.前文中reflect函数需要对lightDir进行取反,而Blinn-Phong中的$𝑙$不需要进行取反.
 
-```sh
+```cpp
 float spec=pow(max(dot(normal,normalize(lightDir+viewDir)),0),100);
 ```
 
