@@ -1889,6 +1889,84 @@ bool Intersect(const Body* bodyA,const Body* bodyB)
 	const ShapeSphere* sphereA = (const ShapeSphere *)bodyA->m_shape;
 	const ShapeSphere* sphereB = (const ShapeSphere *)bodyB->m_shape;
 
-	
+	const float radiusAB = sphereA->m_radius + sphereB->m_radius;
+	const float lengthSquare = ab.GetLengthSqr();
+	if(lengthSquare <= (radiusAB * radiusAB)){
+		return true;
+	}
+	return false;
 }
+```
+
+　　一个简短的说明,编码中一个常见的技巧是比较平方根.求平方根需要更多的
+指令.所以,我们通常跳过平方根,比较平方的大小.
+
+　　接着我们需要把这个加到更新函数中.
+
+　　很多时候,人们一开始就会尝试做一些聪明的事情.但这是一个错误,因为他们,包括我自己,通常会陷入怀疑自己的困境.相反,我们要用愚蠢的蛮力来让它工作.
+
+　　这意味着我们要比较每个物体与其他物体的交集.因为我们需要在相交时做点什么,我们现在把它们的速度设为0.
+
+```cpp
+void Scene::Update( const float dt_sec ) {
+	for(int i=0;i<m_bodies.size();++i) {
+		Body* body=&m_bodies[i];
+
+		float mass = 1.0f / body->m_invMass;
+		Vec3 impluseGravity = Vec3(0,0,-10) * mass * dt_sec;
+		body->ApplyImpluseLinear(impluseGravity);
+	}
+
+	// 检查与其他body的碰撞
+	for(int i=0;i<m_bodies.size();i++){
+		for(int j=i+1;j<m_bodies.size();++j){
+			Body* bodyA=&m_bodies[i];
+			Body* bodyB=&m_bodies[j];
+
+			// 跳过无限质量的body对
+			if(0.0f == bodyA->m_invMass && 0.0f == bodyB->m_invMass){
+				continue;
+			}
+
+			if(Insersect(bodyA,bodyB)){
+				bodyA->m_linearVelocity.Zero();
+				bodyB->m_linearVelocity.Zero();
+			}
+		}
+	}
+
+	for(int i=0;i<m_bodies.size();++i) {
+		// 更新位置
+		m_bodies[i].m_position += m_bodies[i].m_linearVelocity * dt_sec;
+	}
+}
+```
+
+　　这里有几个注意事项.没有必要去测试两个质量都无穷大的物体之间的交点,因为这些物体无论如何都不会移动.所以,我们跳过这些.
+
+　　运行这个新代码,在空中的body会下落,直到落地,然后停止.现在我们第一次看到了碰撞检测,我们正朝着正确的方向前进.
+
+　　现在,它停止了,这很好.但如果你仔细观,你会发现这两个球体实际上是相互渗透的.我们能做些什么呢?
+
+![图4: 碰撞演示](image-3.png)
+
+## 9 接触与投影方法
+
+我们希望为body对建立基于物理的碰撞响应,但首先我们需要解决这种相互渗透.求解它的一种方法,是用投影法.这使用每个物体表面的接触点和它们的质量来适当地分离它们.
+
+　　让我们从定义接触的数据结构开始:
+```cpp
+struct contact_t{
+	Vec3 ptOnA_WorldSpace;
+	Vec3 ptOnB_WorldSpace;
+	Vec3 ptOnA_LocalSpace;
+	Vec3 ptOnB_LocalSpace;
+
+	Vec3 normal;// 世界空间坐标
+	float separationDistance;// 非渗透为正,渗透为负
+	float timeOfImpact;;
+
+	Body* bodyA;
+	Body* bodyB;
+};
 ```
