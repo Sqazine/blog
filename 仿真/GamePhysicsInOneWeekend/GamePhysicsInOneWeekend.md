@@ -1594,16 +1594,13 @@ void Scene::Initialize() {
 
 &emsp;运行这段代码应该会得到如图1所示的结果
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;">图1:正在运行的示例</div>
-</center>
+</div>
+
+> 图1:正在运行的示例
 
 &emsp;这样你就有效地完成了物理模拟的Hello World.你已经设法创建了一个body和shape,并将它们添加到场景中,然后渲染到屏幕上.恭喜!
 
@@ -1863,16 +1860,13 @@ void Scene::Initialize() {
 
 &emsp;现在,我们的模拟有两个球体,一个非常大的“地面”球体不会移动,另一个正常大小的球体会下落.
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image-1.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;">图2:重力</div>
-</center>
+</div>
+
+> 图2:重力
 
 ## 8. 碰撞
 
@@ -1882,16 +1876,13 @@ void Scene::Initialize() {
 
 &emsp;每个球体都有一个位置,这个位置就是球体在世界空间中的中心.检查重叠的一种简单方法是计算这两点之间的距离,然后将它们与两个半径的和进行比较.如果这段距离小于这两个半径,那么就有交点.
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image-2.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;">图3:碰撞</div>
-</center>
+</div>
+
+> 图3:碰撞
 
 &emsp;把它从公式转化为代码:
 
@@ -1961,16 +1952,13 @@ void Scene::Update( const float dt_sec ) {
 
 &emsp;现在,它停止了,这很好.但如果你仔细观察,你会发现这两个球体实际上是相互渗透的.我们能做些什么呢?
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image-3.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;">图4: 碰撞演示</div>
-</center>
+</div>
+
+> 图4: 碰撞演示
 
 ## 9. 接触与投影方法
 

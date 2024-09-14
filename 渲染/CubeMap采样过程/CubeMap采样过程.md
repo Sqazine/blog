@@ -141,16 +141,11 @@ void main()
 
 但是运行会发现两个面之间是有断层的:
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;"></div>
-</center>
+</div>
 
 因为两个相对的面是存在镜像的,所以如果统一以左下角为原点的话,则相对的另一个面是以右下角为原点的.所以需要修改一下纹理坐标.
 
@@ -183,13 +178,8 @@ else if(mag==abs(TexCoords.z))
 
 最后就得到一个观感正常的天空盒.注意面之间因为没有做抗锯齿的操作,导致锯齿产生裂缝.
 
-<center>
+<div align=center>
 	<img style="border-radius: 0.3125em;
 	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
 	src="image-1.png">
-	<br>
-	<div style="color:orange;
-	display: inline-block;
-	color: #999;
-	padding: 2px;"></div>
-</center>
+</div>

@@ -13,16 +13,13 @@
 ▶ **单元类型(Element Type)** .最常见的目标单元类型是 **三角形(Triangles)** 和 **四边形(Quadrangles)** .三角形网格通常更容易生成,而在四边形网格中,人们通常不得不满足于只有 **四边形主导(Quad-Dominant)** 的结果.请注意,原则上任何四边形网格都可以通过在每个四边形中插入一条对角线来轻松地转换为三角形网格.将三角形网格转换为四边形网格可以通过重心细分(通过插入其重心并将其连接到边缘中点将每个三角形划分为三个四边形)或通过将每个三角形的重心划分为三个新三角形(一对三分割)并丢弃原始网格边缘来执行.  
 ▶ **单元形状(Element Shape)** .单元可分为 **各向同性(Isotropic)** 和 **各向异性(Anisotropic)** .各向同性单元的形状在所有方向上都是局部均匀的.理想情况下,如果三角形/四边形接近等边三角形/正方形,那么它就是各向同性的(见图6.1).
 
-<center>
+<div align=center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
     src="image.png">
-    <br>
-    <div style="color:orange;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">图 6.1.各向同性:低(左)vs高(右).(图片来自于[Botsch et al. 06b].)</div>
-</center>
+</div>
+
+> 图 6.1.各向同性:低(左)vs高(右).(图片来自于[Botsch et al. 06b].)
 
 对于三角形来说,这种圆度可以用其圆周半径与最短边的长度之比来测量(见[Shewchuk 97]).各向同性单元在数值应用(FEM或几何处理)中更受青睐,因为其单元的局部均匀形状通常对目标系统来说会更好调节(见[Shewchuk 02]中更详细的讨论).各向异性单元的形状局部根据表面上的方向而变化.当仔细对齐和定向时(参见下面的"单元对齐和定向"),各向异性网格更适用于形状逼近,因为它们通常需要比各向同性网格更少的单元来达到相同的逼近质量.各向异性元通常以表面的主曲率方向为取向(见第3章).此外,各向异性单元更好地表达了许多技术模型中固有的几何图元(柱体,锥体等)结构.
 
@@ -54,16 +51,13 @@
 
 Voronoi图和Delaunay三角剖分是网格划分和网格重划分的重要几何数据结构.我们现在提供了任意维度的Voronoi图和Delaunay三角剖分的定义,尽管它们以后只会在二维和三维中使用.
 
-<center>
+<div align=center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
     src="image-1.png">
-    <br>
-    <div style="color:orange;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">图 6.3 点集的二维Voronoi图(左),同一点集的二维Delaunay三角剖分图(中),以及两者的叠加图(右).</div>
-</center>
+</div>
+
+> 图 6.3 点集的二维Voronoi图(左),同一点集的二维Delaunay三角剖分图(中),以及两者的叠加图(右).
 
 &emsp;设 $\mathcal{P}=\{\textbf{p}_1,...,\textbf{p}_n\}$ 为 ${\rm I \!R}^d$ 中的一组点( **所谓的站点(Sites)** ).我们将每个站点 $\textbf{p}_i$ 以及其 **Voronoi区域(Voronoi region)** 关联起来使得
 $$

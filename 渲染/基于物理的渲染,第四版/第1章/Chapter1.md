@@ -8,16 +8,13 @@
 
 大多数计算机图形学书籍介绍的都是算法和理论,有时还会结合一些代码片段.相比之下,本书将理论与功能完善的渲染系统的完整实现相结合.此外,该系统的完整源代码以开源许可的方式提供,本书的全文可在[pbr-book.org/4ed](https://pbr-book.org/4ed)免费在线获取(截至2023年11月1日).更多信息,包括示例场景和有关pbrt的其他信息,请访问网站[pbrt.org](https://pbrt.org/).
 
-<center>
+<div align=center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
     src="image.png">
-    <br>
-    <div style="color:orange;
-    display: inline-block;
-    color: #999;
-    padding: 2px;">图 1.1:使用pbrt渲染的场景.*Kroken* 场景具有复杂的几何形状,材质和光传输.渲染系统能很好地处理所有这些效果,因此可以渲染出像本图这样逼真的图像.您可以从pbrt网站下载该场景和其他许多场景.*(场景由 Angelo Ferretti 提供)*.</div>
-</center>
+</div>
+
+> 图 1.1:使用pbrt渲染的场景.*Kroken* 场景具有复杂的几何形状,材质和光传输.渲染系统能很好地处理所有这些效果,因此可以渲染出像本图这样逼真的图像.您可以从pbrt网站下载该场景和其他许多场景.*(场景由 Angelo Ferretti 提供)*.
 
 ### 1.1 文学编程
 
