@@ -70,4 +70,5 @@ $$
 
 &emsp;由于与Voronoi图的对偶性,Delaunay三角剖分具有一些局部和全局性质.其中一个局部性质叫 **空球性质(Empty Sphere Property)** .一个点集 ${\mathcal P}$ 的三角剖分 ${\mathcal T}$ 使得 ${\mathcal T}$ 的任意 $d$-单纯形都有一个不包围 ${\mathcal P}$ 的任何点的外接球,此为 ${\mathcal P}$ 的Delaunay三角剖分.相反,任何顶点在 ${\mathcal P}$ 中的 $k$ -单纯形,如果可以被一个不包围 ${\mathcal P}$ 的任何点的超球所限定,则是 ${\mathcal P}$ 的Delaunay三角剖分的一个面.在二维中,一个全局属性与最小的三角形角有关:点集 ${\mathcal P}$ 的Delaunay三角剖分是使最小角最大化的 ${\mathcal P}$ 的三角剖分.另一个更强的全局性是:对于字典顺序来说角向量(所有三角形角的集合)最大的 ${\mathcal P}$ 的三角剖分是 ${\mathcal P}$ 的Delaunay三角剖分.后两个性质解释了Delaunay三角剖分在网格生成中的成功,因为小角度会导致有限元方法中的数值问题.
 
-&emsp;在基于Delaunay表面网格划分算法中使用的另一个关键概念是 **有限Delaunay三角剖分(Restricted Delaunay Triangulation)** .假设 $X$ 表示 ${\rm I \!R}^d$ 的子集; 
+&emsp;在基于Delaunay表面网格划分算法中使用的另一个关键概念是 **有限Delaunay三角剖分(Restricted Delaunay Triangulation)** .假设 $X$ 表示 ${\rm I \!R}^d$ 的子集; $\mathcal{P}$ 为 ${\rm I \!R}^d$ 的点集;以及 Del(${\mathcal{P}}$) 为 ${\mathcal{P}}$ 的 Delaunay 三角化.我们称 $X$ 的 Delaunay 三角剖分为 Del(${\mathcal{P}}$) 的子复数,记为 $Del_X({\mathcal P})$,其对偶 Voronoi 与 $X$ 相交.图 6.4 阐述了平面闭合曲线对应的 2D 点集的 Delaunay 三角剖分.
+ 
