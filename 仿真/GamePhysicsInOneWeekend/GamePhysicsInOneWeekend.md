@@ -1585,7 +1585,7 @@ public:
 ```cpp
 void Scene::Initialize() {
 	Body body;
-	body.m_position = Vec3( 0, 0, 0 );
+	body.m_position = Vec3( 0, 0, 1 );
 	body.m_orientation = Quat( 0, 0, 0, 1 );
 	body.m_shape = new ShapeSphere( 1.0f );
 	m_bodies.push_back( body );
@@ -1817,7 +1817,7 @@ void Body::ApplyImpluseLinear(const Vec3& impluse)
 
 &emsp;需要注意的是,我们实际上存储的是质量的倒数,而不是质量本身.这有几个原因.首先,我们需要一种方法来描述具有无限质量的物体.在现实世界中,没有任何东西的质量是无限大的,但是对于我们要模拟的力,我们可以把某些物体近似为具有无限大的质量.例如,一个网球被扔到人行道上.网球对地面施加一个力,而地面反过来对网球施加一个力,地球本身就会移动一点.但地球移动的量是如此之小,以至于我们可以很容易地将这次碰撞近似为地球具有无限质量.
 
-&emsp;现在我们可以调整我们的更新循环将重力作为脉冲,而不是直接使用它作为加速度.
+&emsp;现在我们可以调整我们的更新循环将重力作为冲量,而不是直接使用它作为加速度.
 
 ```cpp
 void Scene::Update( const float dt_sec ) {
@@ -1843,7 +1843,7 @@ void Scene::Update( const float dt_sec ) {
 ```cpp
 void Scene::Initialize() {
 	Body body;
-	body.m_position = Vec3( 0, 0, 0 );
+	body.m_position = Vec3( 0, 0, 1 );
 	body.m_orientation = Quat( 0, 0, 0, 1 );
 	body.m_invMass = 1.0f;
 	body.m_shape = new ShapeSphere( 1.0f );
@@ -2195,7 +2195,7 @@ $$
 v_2' = v_1 + v_1'- v_2
 $$
 
-放入动量公式,求解$v_1'$:
+&emsp;放入动量公式,求解$v_1'$:
 
 $$
 m_1 * v_1' = m_1* v_1 +m_2 * v_2 - m_2 * v_1 - m_2 * v_1' +m_2 *v_2 
@@ -2216,7 +2216,7 @@ $$
 \Rightarrow (m_1 + m_2) * v_2' = (m_2 - m_1) * v_2 + 2 * m_1 * v_1
 $$
 
-回想一下,冲量的定义就是动量的变化:
+&emsp;回想一下,冲量的定义就是动量的变化:
 
 $$
 J_1 = m_1 * (v_1' - v_1) \\
@@ -2228,5 +2228,210 @@ $$
 $$
 J_1 = m_1 * v_1' - m_1 * v_1 \\
 = \frac{m_1}{m_1 + m_2} * [(m_1 - m_2) * v_1 + 2 * m_2 * v_2] - m_1 * v_1 \\
-\Rightarrow 
+\Rightarrow (m_1 + m_2) * J_1 = m_1 * (m_1 - m_2) * v_1 + 2 * m_1 * m_2 * v_2 - m_1 * (m_1 + m_2) * v_1 \\
+= - m_1 * m_2 * v_1 + 2 * m_1 * m_2 * v_2 - m_1 * m_2 * v_1 \\
+= 2 *m_1 * m_2 * v_2 - 2* m_1 * m_2 * v_1 \\
+= 2 * m_1 * m_2 * (v_2 - v_1) \\ 
+\Rightarrow J_1 = \frac{2 * m_1 * m_2  * (v_2 - v_1)}{m_1 + m_2}
 $$
+
+&emsp;同样,对于 $J_2$:
+
+$$
+J_2 = \frac{2 * m_1 * m_2  * (v_1 - v_2)}{m_1 + m_2} = -J_1
+$$
+
+&emsp;这只是一维的情况.幸运的是,将其转化为三维情况非常容易.不过,我将使用一个非正式的论证来表述它.基本上,我们只关心碰撞的法线速度.任何切向速度都可以忽略,碰撞的冲量响应应该只沿着接触的法线.
+
+&emsp;因此,要得到相对速度与法线的分量,我们只需与法线进行点积即可.
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-5.png">
+</div>
+
+> 图 6.碰撞法线
+
+&emsp;最后一点是,由于我们存储的是我们身体的质量倒数,如果能用质量倒数来写等式就更好了.这也非常简单,我们只需用分子和分母乘以质量倒数,就可以得出:
+
+$$
+J_1 = \frac{2 * (v_2 - v_1)}{m_1^{-1} + m_2^{-1}}\\
+J_2 = \frac{2 * (v_1 - v_2)}{m_1^{-1} + m_2^{-1}}
+$$
+
+&emsp;转换成代码,得到:
+```cpp
+void ResolveContact (contact_t& contact)
+{
+	Body* bodyA = contact.bodyA;
+	Body* bodyB = contact.bodyB;
+	
+	const float invMassA=bodyA->m_invMass;
+	const float invMassB=bodyB->m_invMass;
+
+	//计算碰撞冲量
+	const Vec3& n=contact.normal;
+	const Vec3 vab=bodyA->m_linearVelocity - bodyB->m_linearVelocity;
+	const float ImpluseJ=-2.0f * vab.Dot(n) / (invMassA + invMassB);
+	const Vec3 vectorImpluseJ = n * ImpluseJ;
+
+	bodyA->ApplyImpluseLinear(vectorImpluse * 1.0f);
+	bodyB->ApplyImpluseLinear(vectorImpluse * -1.0f);
+
+	//让我们把碰撞对象移到彼此的外侧
+	const float tA=bodyA->m_invMass / (bodyA->m_invMass + bodyB->m_invMass);
+	const float tB=bodyB->m_invMass / (bodyA->m_invMass + bodyB->m_invMass);
+
+	const Vec3 ds = contact.ptOnB_WorldSpace - contac.ptOnA_WorldSpace;
+	bodyA->m_position += ds * tA;
+	bodyB->m_position -= ds * tB;
+}
+```
+
+&emsp;现在,运行这段代码,我们会发现两个物体会适当地相互反弹.
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-6.png">
+</div>
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-7.png">
+</div>
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-8.png">
+</div>
+
+> 图 7. 反弹
+
+## 11. 弹性
+
+&emsp;上一章中的碰撞响应在物理上是准确的.但是,它只模拟了完全保存动能的碰撞.这与台球相互弹跳的原理非常接近,但如果我们想模拟一些更软的东西呢？假设我们有两个粘土做的球,而不是两个非常坚硬的台球.这样的碰撞实际上会损失很多动能.当然,不用说,在现实世界中,这样的碰撞并不会损失能量,只是将动能转换成了热能.如果你有机会,你可能会注意到,一大块金属在高冲击力的碰撞中被扭曲,温度非常高.
+
+&emsp;让我们快速定义一些术语.完全保存动能的碰撞称为弹性碰撞.失去部分或全部动能的碰撞称为非弹性碰撞.
+
+&emsp;既然我们已经模拟了弹性碰撞,那么问题就变成了"如何模拟非弹性碰撞?"
+
+&emsp;那么,我们可以引入一个新变量 $ϵ$,它代表弹性.这也被称为还原度.有时也被称为 "反弹".$ϵ$ 是一个范围为[0, 1]的数字,它与初始向量和最终向量的关系式如下:
+
+$$
+ϵ = - \frac{v_2' - v_1'}{v_2 - v_1}
+$$
+
+&emsp;如果我们还记得上一章的内容,冲量的定义和动量守恒为我们提供了这些方程:
+
+$$
+v_1'=v_1 + \frac{J}{m_1}
+$$
+
+$$
+v_2'=v_2 + \frac{J}{m_2} 
+$$
+
+&emsp;将这两个方程相减得到:
+
+$$
+v_2' - v_1' = v_2 -v_1 - \frac{J}{m_2} - \frac{J}{m_1}
+$$
+
+&emsp;再利用回归系数方程,我们得到:
+
+$$
+-ϵ * (v_2 -v_1) = v_2 -v_1 - \frac{J}{m_2} - \frac{J}{m_1}
+$$
+$$
+\Rightarrow ϵ * (v_2 - v_1) + (v_2 - v_1) = \frac{J}{m_2} + \frac{J}{m_1}
+$$
+$$
+\Rightarrow (1 + ϵ) * (v_2 - v_1) = \frac{J}{m_2} + \frac{J}{m_1}
+$$
+$$
+\Rightarrow J = (1 + ϵ) * \frac{v_2 - v_1}{m_1^{-1} + m_2^{-1}}
+$$
+
+&emsp;可以见到,当 $ϵ$ 为 1 时,我们会回到上一章中冲量的原来方程.
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	void ApplyImpluseLinear(const Vec3& impluse);
+};
+```
+
+&emsp;而在 ResolveContact 函数中,我们需要确定使用哪个Body的弹性.在专业的游戏引擎中,可能会有更多的参数允许设计师控制两个身体的弹力如何组合.不过,我喜欢使用两个弹力相乘的简单模式.这样,所使用的弹力既能反映两个物体的物理特性,又能保持在 [0, 1] 的范围内.我使用的理由是,如果一个硬台球碰到另一个粘土做的球,那么它们往往会粘在一起.但如果你有两个粘土做的球,那么它们应该会粘得更紧.所以,这应该是对现实世界的一个很好的近似.
+
+```cpp
+void ResolveContact (contact_t& contact)
+{
+	Body* bodyA = contact.bodyA;
+	Body* bodyB = contact.bodyB;
+	
+	const float invMassA=bodyA->m_invMass;
+	const float invMassB=bodyB->m_invMass;
+
+	const float elasticityA = bodyA->m_elasticity;
+	const float elasticityB = bodyB->m_elasticity;
+	const float elasticity = elasticityA * elasticityB;
+
+	//计算碰撞冲量
+	const Vec3& n=contact.normal;
+	const Vec3 vab=bodyA->m_linearVelocity - bodyB->m_linearVelocity;
+	const float ImpluseJ=-(1.0f + elasticity)* vab.Dot(n) / (invMassA + invMassB);
+	const Vec3 vectorImpluseJ = n * ImpluseJ;
+
+	bodyA->ApplyImpluseLinear(vectorImpluse * 1.0f);
+	bodyB->ApplyImpluseLinear(vectorImpluse * -1.0f);
+
+	//让我们把碰撞对象移到彼此的外侧
+	const float tA=bodyA->m_invMass / (bodyA->m_invMass + bodyB->m_invMass);
+	const float tB=bodyB->m_invMass / (bodyA->m_invMass + bodyB->m_invMass);
+
+	const Vec3 ds = contact.ptOnB_WorldSpace - contac.ptOnA_WorldSpace;
+	bodyA->m_position += ds * tA;
+	bodyB->m_position -= ds * tB;
+}
+```
+
+&emsp;让我们来测试一下。我们可以将物体设置为无弹性，那么弹起的球将永远不会弹回原来的高度:
+
+```cpp
+void Scene::Initialize() {
+	Body body;
+	body.m_position = Vec3( 0, 0, 10 );
+	body.m_orientation = Quat( 0, 0, 0, 1 );
+	body.m_invMass = 1.0f;
+	body.m_elasticity = 0.5f;
+	body.m_shape = new ShapeSphere( 1.0f );
+	m_bodies.push_back( body );
+
+	//添加一个"地面"球体,它不会受重力的影响而掉下
+	body.m_position = Vec3( 0, 0, -1000 );
+	body.m_orientation = Quat( 0, 0, 0, 1 );
+	body.m_invMass = 0.0f;
+	body.m_elasticity = 1.0f;
+	body.m_shape = new ShapeSphere( 1000.0f );
+	m_bodies.push_back( body );
+}
+```
+
+&emsp;如你所见,如果你运行这个demo.小球弹跳次数越来越少,直到最终停下.
