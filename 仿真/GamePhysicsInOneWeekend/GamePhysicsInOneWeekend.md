@@ -2465,7 +2465,7 @@ $$
 
 &emsp;现在,有一件事确实让情况变得有点复杂,那就是 ${\rm \bf I}$.${\rm \bf I}$ 被称为惯性张量.它类似于质量,用来衡量物体"抵抗"角动量变化的程度.我们将在下一本书中对此进行更详细的介绍,但在本书中只需注意它是一个 3x3 矩阵.
 
-&emsp;惯性张量是根据物体的质量分布计算出来的。由于我们的物体具有均匀的密度，而且物体的形状是球形，因此惯性张量的定义为：
+&emsp;惯性张量是根据物体的质量分布计算出来的.由于我们的物体具有均匀的密度,而且物体的形状是球形,因此惯性张量的定义为：
 
 $$
 \begin{pmatrix}
@@ -2475,3 +2475,89 @@ $$
 \end{pmatrix}
 $$
 
+&emsp;现在,在物理模拟中,通常只需要惯性张量倒数；类似于只需要存储质量倒数,而不是物体的质量.不过,我想如果我们存储的是正确的惯性张量而不是它的倒数,会更容易消化这个概念.
+
+&emsp;为了可以在代码中访问惯性张量,我们需要在shape类中增加一个函数:
+```cpp
+class Shape {
+public:
+	enum shapeType_t {
+		SHAPE_SPHERE,
+	};
+	virtual shapeType_t GetType() const = 0;
+	virtual Mat3 InertialTensor() const = 0;
+
+	virtual Vec3 GetCenterOfMass() const {return m_centerOfMass;}
+protected:
+	Vec3 m_centerOfMass;
+};
+
+class ShapeSphere : public Shape {
+public:
+	ShapeSphere( const float radius ) : m_radius( radius ) {
+		m_centerOfMass.Zero();
+	}
+
+	shapeType_t GetType() const override { return SHAPE_SPHERE; }
+	Mat3 InertialTensor() override;
+	float m_radius;
+};
+
+Mat3 ShapeSphere::InertiaTensor() const
+{
+	Mat3 tensor;
+	tensor.Zero();
+	tensor.rows[0][0] = 2.0f * m_radius * m_radius / 5.0f;
+	tensor.rows[1][1] = 2.0f * m_radius * m_radius / 5.0f;
+	tensor.rows[2][2] = 2.0f * m_radius * m_radius / 5.0f;
+	return tensor;
+}
+```
+
+&emsp;可能你注意到,shape类没有质量.因此为了获得完整的惯性张量,我们需要在物体类家店代码.且我们想在世界空间和本地空间都可以访问惯性张量.
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	Mat3 GetInverseInertiaTensorBodySpace() const;
+	Mat3 GetInverseInertiaTensorWorldSpace() const;
+
+	void ApplyImpluseLinear(const Vec3& impluse);
+};
+
+Mat3 Body::GetInverseInertiaTensorBodySpace() const
+{
+	Mat3 inertiaTensor = m_shape->InertiaTensor();
+	Mat3 invInertiaTensor = inertiaTensor.Inverse() * m_invMass;
+	return invInertiaTensor;
+}
+Mat3 Body::GetInverseInertiaTensorWorldSpace() const
+{
+	Mat3 inertiaTensor = m_shape->InertiaTensor();
+	Mat3 invInertiaTensor = inertiaTensor.Inverse() * m_invMass;
+	Mat3 orient = m_orientation.ToMat3();
+	invInertiaTensor = orient * invInertiaTensor * orient.Transpose();
+	return invInertiaTensor;
+}
+```
+
+&emsp;现在我们已经理清了惯性张量,可以回到角冲量.回想一下,我们已经将其定义为:
+
+$$
+d \vec{L} = \vec{τ} \cdot dt = \vec{J},\\
+d \vec{L} = {\rm \bf I} \cdot d \vec{\omega}, \\
+\Rightarrow  d \vec{\omega} = {\rm \bf I}^{-1} \cdot \vec{J}
+$$
