@@ -50,11 +50,18 @@ CMAKE_INSTALL_REFIX=C:/LLVM14
 </div>
 
 
-4. 生成INSTALL项目会自动安装到C:\LLVM14目录下
+5. 生成INSTALL项目会自动安装到C:\LLVM14目录下
 <div align=center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
     src="image-1.png">
+</div>
+
+6. 如果需要编译LLVM的其他子项目,则需要指定 LLVM_ENABLE_PROJECTS 来生成其他的项目工程
+<div align=center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="image-4.png">
 </div>
 
 [https://llvm.gnu.ac.cn/docs/CMake.html](https://llvm.gnu.ac.cn/docs/CMake.html)
