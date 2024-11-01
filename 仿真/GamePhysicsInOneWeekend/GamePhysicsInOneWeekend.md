@@ -2561,3 +2561,68 @@ d \vec{L} = \vec{τ} \cdot dt = \vec{J},\\
 d \vec{L} = {\rm \bf I} \cdot d \vec{\omega}, \\
 \Rightarrow  d \vec{\omega} = {\rm \bf I}^{-1} \cdot \vec{J}
 $$
+
+&emsp;需要注意的是,这些矢量是旋转平面的法线.例如,一个旋转的自行车轮.它的角动量是平行于轮轴的矢量.当你用力踩踏或踩下刹车时,车轮就会受到扭矩的作用,扭矩是一个矢量,也平行于车轮的轴线.
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-9.png">
+</div>
+
+> 图 8. 扭矩角动量
+
+&emsp;有了这些,我们就有足够的知识来实现角冲量函数:
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	Vec3 		m_angularVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	Mat3 GetInverseInertiaTensorBodySpace() const;
+	Mat3 GetInverseInertiaTensorWorldSpace() const;
+
+	void ApplyImpluseLinear(const Vec3& impluse);
+	void ApplyImpluseAngular(const Vec3& impluse);
+};
+
+void Body::ApplyImpluseAngular(const Vec3& impluse)
+{
+	if(m_invMass==0.0f)
+		return;
+
+	// L = I w = r x p
+	// dL = i dw = r x J
+	// => dw = I^-1 * (r x J)
+	m_angularVelocity += GetInverseInertiaTensorWorldSPace() * impluse;
+
+	const float maxAngularSpeed = 30.0f; // 30 rad/s is fast enough for us.But feel free to adjust
+	if(m_angularVelocity.GetLengthSqr() > maxAngularSpeed * maxAngularSpeed)
+	{
+		m_angularVelocity.Normalize();
+		m_angularVelocity *= maxAngularSpeed;
+	}
+}
+```
+&emsp;让我们停一下讨论下这两段奇怪的代码.
+&emsp;首先是ApplyImpulseAngular函数中的角速度截断.在游戏模拟中,通常会对物体的线速度和角速度进行截断.
+&emsp;这主要处于性能考虑.当我们讨论粗粒度检测(BroadPhase)和非球体的连续碰撞检测时,就会更清楚地知道为什么会出现这个问题.
+&emsp;在本书中,我们没有考虑线速度的截断问题,主要是因为我们并不需要它.
+&emsp;我们将在本系列中探讨的所有设置都不会有移动速度快到足以导致性能问题的物体.会有一个传送bug,我们稍后会讨论,但这个问题会通过持续碰撞检测得到修复.
+&emsp;我想要讨论的下一行代码来自于GetInverseInertiaTensorWorldSpace函数:
+```cpp
+orient * invInertiaTensor * orient.Transpose();
+```
+&emsp;这是世界空间下的惯性张量倒数.可以看到,我们前面计算的惯性张量是在物体的本地或者模型空间.
