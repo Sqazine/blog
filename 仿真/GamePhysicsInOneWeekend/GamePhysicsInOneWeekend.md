@@ -2313,7 +2313,7 @@ void ResolveContact (contact_t& contact)
 
 ## 11. 弹性
 
-&emsp;上一章中的碰撞响应在物理上是准确的.但是,它只模拟了完全保存动能的碰撞.这与台球相互弹跳的原理非常接近,但如果我们想模拟一些更软的东西呢？假设我们有两个粘土做的球,而不是两个非常坚硬的台球.这样的碰撞实际上会损失很多动能.当然,不用说,在现实世界中,这样的碰撞并不会损失能量,只是将动能转换成了热能.如果你有机会,你可能会注意到,一大块金属在高冲击力的碰撞中被扭曲,温度非常高.
+&emsp;上一章中的碰撞响应在物理上是准确的.但是,它只模拟了完全保存动能的碰撞.这与台球相互弹跳的原理非常接近,但如果我们想模拟一些更软的东西呢?假设我们有两个粘土做的球,而不是两个非常坚硬的台球.这样的碰撞实际上会损失很多动能.当然,不用说,在现实世界中,这样的碰撞并不会损失能量,只是将动能转换成了热能.如果你有机会,你可能会注意到,一大块金属在高冲击力的碰撞中被扭曲,温度非常高.
 
 &emsp;让我们快速定义一些术语.完全保存动能的碰撞称为弹性碰撞.失去部分或全部动能的碰撞称为非弹性碰撞.
 
@@ -2700,3 +2700,113 @@ public:
 	float m_radius;
 };
 ```
+
+&emsp;幸运的是,球体的质心就是它的几何中心.所以我们可以用物体的位置来代替质心.但是我们现在应该讨论一下这个问题,特别是下一本书中我们不会局限于球体.
+
+&emsp;如果我们有一个shape,我们不能假设它的质心也是它的几何中心,那么我们如何利用物体的位置和朝向来得到它在世界空间中的质心?
+
+&emsp;要做到这一点,和我们把模型的顶点从模型空间转换到世界空间是一样的.我们要做的第一件事是根据身体的朝向旋转质心,然后根据身体的位置进行平移.提醒一下,这是对我们在前一章所做的回顾:
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	Vec3 		m_angularVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	Mat3 GetInverseInertiaTensorBodySpace() const;
+	Mat3 GetInverseInertiaTensorWorldSpace() const;
+
+	void ApplyImpluseLinear(const Vec3& impluse);
+	void ApplyImpluseAngular(const Vec3& impluse);
+};
+
+Vec3 Body::GetCenterOfMassWorldSpace() const
+{
+	const Vec3 centerOfMass=m_shape->GetCenterOfMass();
+	const Vec3 pos=m_position + m_orientation.RotatePoint(centerOfMass);
+	return pos;
+}
+Vec3 Body::GetCenterOfMassModelSpace() const
+{
+	const Vec3 centerOfMass=m_shape->GetCenterOfMass();
+	retirn centerOfMass;
+}
+```
+
+&emsp;所以,由于大多数冲量都作用于物体表面上的一点,我们可以假设我们既有位置又有冲量本身.现在,我们如何从位置和冲量本身算出线冲量和角冲量是什么?
+
+&emsp;事实上.线性冲量就是冲量本身.但是我们需要冲量的位置来求出角冲量.幸运的是.我们可以用角冲量的定义来实现.
+
+&emsp;回顾一下:
+
+$$
+\vec{L} = {\rm \bf I} \cdot \vec{\omega} = \vec{r} \times \vec{p}
+$$
+$$
+\Rightarrow d \vec{L} = {\rm \bf I} \cdot d \vec{\omega} = \vec{r} \times \vec{J}_{linear}
+$$
+$$
+\Rightarrow \vec{J}_{angular} = \vec{r} \times \vec{J}_{linear}
+$$
+
+<div align=center>
+	<img style="border-radius: 0.3125em;
+	box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+	src="image-10.png">
+</div>
+
+以及转换为代码:
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	Vec3 		m_angularVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	Mat3 GetInverseInertiaTensorBodySpace() const;
+	Mat3 GetInverseInertiaTensorWorldSpace() const;
+
+	void ApplyImpluse(const Vec3& implusePoint,const Vec3& impluse);
+	void ApplyImpluseLinear(const Vec3& impluse);
+	void ApplyImpluseAngular(const Vec3& impluse);
+};
+
+void Body::ApplyImpluse(const Vec3& implusePoint,const Vec3& impluse)
+{
+	if(m_invMass == 0.0f)
+		return;
+
+	// implusePoint is the world space location of the application of the impluse
+	// impluse is the world space direction and magnitude of the impluse
+	ApplyImpluseLinear(impluse);
+
+	Vec3 position = GetCenterOfMassWorldSpace(); // applying impluses must produce torques through the center of mass
+
+	Vec3 r = implusePoint - position;
+	Vec3 dL = r.Cross(impluse);
+	ApplyImpluseAngular(dL);
+}
+```
+
