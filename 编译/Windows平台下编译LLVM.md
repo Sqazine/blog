@@ -23,10 +23,8 @@ scoop install cmake(如果已经安装了scoop)
     src="image.png">
 </div>
 
-3. 打开CMake-gui
-选择LLVM仓库下的llvm子目录
+3. 打开CMake-gui,选择LLVM仓库下的llvm子目录,并设置对应的CMake选项
 
-设置
 ```sh
 LLVM_TARGETS_TO_BUILD=X86(这里仅以X86平台为例)
 LLVM_ENABLE_LIBXML2=OFF
@@ -67,3 +65,39 @@ CMAKE_INSTALL_REFIX=C:/LLVM14
 [https://llvm.gnu.ac.cn/docs/CMake.html](https://llvm.gnu.ac.cn/docs/CMake.html)
 
 [https://llvm.gnu.ac.cn/docs/GettingStartedVS.html](https://llvm.gnu.ac.cn/docs/GettingStartedVS.html)
+
+7. 在Visual Studio中如果选择Debug模式编译时一般在最后链接阶段会显示LNK2038错误
+
+一个是RuntimeLibrary不匹配
+
+<div align=center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="image-6.png">
+</div>
+
+另一个是_ITERATOR_DEBUG_LEVEL不匹配
+
+<div align=center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="image-7.png">
+</div>
+
+这是由于自己生成的库的Debug模式和LLVM的Release模式下版本不匹配
+
+如果是MD_DynamicRelease不匹配MDd_DynamicDebug,则把运行库修改为 **多线程DLL(/MD)**
+
+<div align=center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="image-5.png">
+</div>
+
+如果是MT_StaticRelease不匹配MDTd_StaticDebug,则把运行库修改为 **多线程(/MT)**
+
+<div align=center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="image-8.png">
+</div>
