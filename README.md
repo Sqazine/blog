@@ -15,6 +15,10 @@
 
 1. [多边形网格处理(Polygon Mesh Processing)(个人翻译)](几何/多边形网格处理/目录.md)
 
+# 编译
+
+1. [Windows平台下编译LLVM](编译/Windows平台下编译LLVM.md)
+
 # 杂项
 1. [旋转矩阵](杂项/旋转矩阵.md)
 2. [Knuth算法](杂项/Knuth算法.md)
