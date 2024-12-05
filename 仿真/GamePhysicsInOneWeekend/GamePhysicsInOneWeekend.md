@@ -2663,7 +2663,7 @@ $$
 
 ## 13 总冲量
 
-我们都已经覆盖了线性冲量和角冲量.可以将线性冲量看作是作用于物体质心的总冲量.角冲量也作用于物体的质心.
+我们都已经覆盖了线冲量和角冲量.可以将线冲量看作是作用于物体质心的总冲量.角冲量也作用于物体的质心.
 
 &emsp;然而实际上冲量很少会直接作用于物体质心.这表示我们需要考虑这一问题.同时也表示我们需要从质心开始考虑.
 
@@ -2746,18 +2746,18 @@ Vec3 Body::GetCenterOfMassModelSpace() const
 
 &emsp;所以,由于大多数冲量都作用于物体表面上的一点,我们可以假设我们既有位置又有冲量本身.现在,我们如何从位置和冲量本身算出线冲量和角冲量是什么?
 
-&emsp;事实上.线性冲量就是冲量本身.但是我们需要冲量的位置来求出角冲量.幸运的是.我们可以用角冲量的定义来实现.
+&emsp;事实上.线冲量就是冲量本身.但是我们需要冲量的位置来求出角冲量.幸运的是.我们可以用角冲量的定义来实现.
 
 &emsp;回顾一下:
 
 $$
-\vec{L} = {\rm \bf I} \cdot \vec{\omega} = \vec{r} \times \vec{p}
+\vec{L} = {\rm \bf I} \cdot \vec{\omega} = \vec{τ } \times \vec{p}
 $$
 $$
-\Rightarrow d \vec{L} = {\rm \bf I} \cdot d \vec{\omega} = \vec{r} \times \vec{J}_{linear}
+\Rightarrow d \vec{L} = {\rm \bf I} \cdot d \vec{\omega} = \vec{τ } \times \vec{J}_{linear}
 $$
 $$
-\Rightarrow \vec{J}_{angular} = \vec{r} \times \vec{J}_{linear}
+\Rightarrow \vec{J}_{angular} = \vec{τ} \times \vec{J}_{linear}
 $$
 
 <div align=center>
@@ -2810,3 +2810,73 @@ void Body::ApplyImpluse(const Vec3& implusePoint,const Vec3& impluse)
 }
 ```
 
+&emsp;接下来我们需要做的是改变我们更新物体位置的方式.目前,我们通过这个代码片段循环中的Scene::Update函数中的线速度来更新物体的位置:
+
+```cpp
+for(int i=0;i<m_bodies.size();++i) {
+	m_bodies[i].m_position += m_bodies[i].m_linearVelocity *dt_sec;
+}
+```
+
+&emsp;相反,让我们给Body类一个Update函数,然后在Scene::update函数中调用它.这样循环就会变成:
+
+```cpp
+for(int i=0;i<m_bodies.size();++i) {
+	m_bodies[i].Update();
+}
+```
+
+&emsp;显然Body::Update函数定义为:
+
+```cpp
+class Body {
+public:
+	Vec3		m_position;
+	Quat		m_orientation;
+	Vec3 		m_linearVelocity;
+	Vec3 		m_angularVelocity;
+	float 		m_invMass;
+	float       m_elasticity;
+	Shape *		m_shape;
+
+	Vec3 GetCenterOfMassWorldSpace() const;
+	Vec3 GetCenterOfMassModelSpace() const;
+
+	Vec3 WorldSpaceToBodySpace(const Vec3& pt) const;
+	Vec3 BodySpaceToWorldSpace(const Vec3& pt) const;
+
+	Mat3 GetInverseInertiaTensorBodySpace() const;
+	Mat3 GetInverseInertiaTensorWorldSpace() const;
+
+	void ApplyImpluse(const Vec3& implusePoint,const Vec3& impluse);
+	void ApplyImpluseLinear(const Vec3& impluse);
+	void ApplyImpluseAngular(const Vec3& impluse);
+
+	void Update(const floatc dt_sec);
+};
+
+void Body::Update(const float dt_sec)
+{
+	m_position += m_linearVelocity * dt_sec;
+}
+```
+
+&emsp;现在我们只需要弄清楚如何从角速度中更新朝向,然后实现就行了.
+
+&emsp;从角速度更新朝向比更新位置稍微复杂一点.如果物体的形状是不对称的,那么物体就会进动(precess),并对自身产生内部扭矩.这可能是违反直觉的,但你可以在互联网上搜索宇航员在轨道上用T型柄演示这一点的视频.这种效应的一些名称是"网球拍定理","Dzhanibekov效应",和"中间轴定理".
+
+$$
+\vec{τ} = \vec{\omega} \cdot {\rm \bf I} \cdot \vec{\omega}
+$$
+$$
+\vec{τ} = {\rm \bf I} \cdot \vec{\alpha}
+$$
+$$
+\vec{\alpha} = {\rm \bf I}^{-1} \cdot ( \vec{\omega} \cdot {\rm \bf I} \cdot \vec{\omega} )
+$$
+$$
+d\vec{\omega} = \vec{\alpha} \cdot dt
+$$
+$$
+d\vec{\theta} = \vec{\omega} \cdot dt
+$$
